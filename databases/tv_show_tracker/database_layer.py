@@ -18,11 +18,11 @@ def store_in_db(data, date, channel):
     connection = engine.connect()
 
     for time, name in data:
+        # TODO: Refactor and clean and find out why these .wheres show warnings
         # N.B.: treat data with minus prefix as next day date (hack from scraper)
         actual_date = date + timedelta(days=1) if '-' in time else date
         time_obj = datetime.strptime(time.strip('-'), "%H:%M").time()
         datetime_obj = datetime.combine(actual_date, time_obj)
-        # TODO: make a DB (model?) object out of datetime_obj, name and channel and store (it/them since it's FK?)
         statement = insert(Show).values(title=name, description='2 lika i 20 likuša', genre='drama',
                                         duration=80).on_conflict_do_nothing(index_elements=["title", "duration"])
         connection.execute(statement)
@@ -37,12 +37,12 @@ def store_in_db(data, date, channel):
         show_id = get_show_id(name, connection)
 
         statement = (insert(Schedule).values(channel_id=channel_id,
-                                            show_id=show_id,
-                                            start_time=datetime_obj,
-                                            end_time=datetime_obj,
-                                            episode_title='',
-                                            season=-1,
-                                            episode=-1)
+                                             show_id=show_id,
+                                             start_time=datetime_obj,
+                                             end_time=datetime_obj,
+                                             episode_title='',
+                                             season=-1,
+                                             episode=-1)
                      .on_conflict_do_nothing(index_elements=["channel_id", "start_time"]))
         connection.execute(statement)
 
@@ -64,7 +64,18 @@ def get_engine():
 
 
 def filter_upcoming(show_name, time_delta):
-    pass
+    time_threshold = datetime.now() + time_delta
+
+    query = (select(Schedule)
+             .join(Show, Schedule.show_id == Show.id)
+             .filter(Schedule.start_time >= datetime.now(),
+                     Schedule.start_time <= time_threshold,
+                     Show.title.ilike(f'%{show_name}%'))
+             .order_by(Schedule.start_time).limit(1))
+
+    engine = get_engine()
+    with engine.connect() as connection:
+        return connection.execute(query).fetchone()
 
 
 if __name__ == "__main__":

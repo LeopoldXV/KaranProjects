@@ -12,7 +12,7 @@ def main():
     # maybe in future when we have multiple channel scrapers, but also for DB
     channel = 'RTL'
     data = scrape_rtl_show_on_date(show_name, date)
-    upcoming_delta = timedelta(minutes=30)
+    upcoming_delta = timedelta(minutes=60)
     if data:
         store_in_db(data, date, channel)
         upcoming = filter_upcoming(show_name, upcoming_delta)
