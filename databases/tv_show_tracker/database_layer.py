@@ -1,8 +1,7 @@
 from datetime import timedelta, datetime
-from sqlalchemy import create_engine, MetaData, Table, select
-from sqlalchemy.dialects.postgresql import insert
 
-from databases.tv_show_tracker.db_models import Show, Channel, Schedule
+from sqlalchemy import create_engine, select
+from sqlalchemy.dialects.postgresql import insert
 
 DB_NAME = 'tv_shows'
 DB_USER = 'supcom'

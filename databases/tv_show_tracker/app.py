@@ -1,7 +1,7 @@
 import datetime
 from datetime import timedelta
 
-from databases.tv_show_tracker.rtl_scraper import scrape_rtl_show_on_date
+from KaranProjects.databases.tv_show_tracker.rtl_scraper import scrape_rtl_show_on_date
 from database_layer import store_in_db, filter_upcoming
 from notifier import send_email
 
